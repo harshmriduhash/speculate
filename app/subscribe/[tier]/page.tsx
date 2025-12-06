@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { openRazorpayCheckout } from '@/lib/razorpay-client';
 
 export default function SubscribePage({
   params,
@@ -37,24 +38,38 @@ export default function SubscribePage({
   const handleSubscribe = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/stripe/create-subscription", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          tier: params.tier,
-        }),
-      });
+      // If Razorpay is configured, use it for checkout (one-time purchase for MVP)
+      if (process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+        const amountPaise = Math.round(tier.price * 100);
+        const res = await fetch('/api/payments/razorpay/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amountPaise, currency: 'INR', receipt: `subscription:${params.tier}` }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || 'Failed to create order');
+        await openRazorpayCheckout(data.order, data.key, { name: `Subscribe ${tier.name}`, description: tier.description });
+        toast.success('Checkout opened. Complete payment to finalize.');
+      } else {
+        const response = await fetch("/api/stripe/create-subscription", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tier: params.tier,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to create subscription");
+        if (!response.ok) {
+          throw new Error("Failed to create subscription");
+        }
+
+        const data = await response.json();
+        
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
       }
-
-      const data = await response.json();
-      
-      // Redirect to Stripe Checkout
-      window.location.href = data.url;
     } catch (error) {
       console.error("Subscription error:", error);
       toast.error("Failed to start subscription process");
