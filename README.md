@@ -138,6 +138,18 @@ Notes:
 - If you are in India and want to accept payments, this project supports Razorpay. Set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` in your `.env.local`. The app includes a minimal server endpoint at `/api/payments/razorpay/create-order` that generates Razorpay orders.
 - For demo purposes set `NEXT_PUBLIC_DEV_MODE=true` and `NEXT_PUBLIC_DISABLE_PAYWALLS=true` to bypass paywalls and credit checks.
 
+## Subscriptions (Razorpay)
+
+This repo contains an MVP Razorpay subscriptions implementation. Endpoints:
+
+- `POST /api/payments/razorpay/create-subscription` — create a Razorpay plan & subscription for a given tier (server-side).
+- `POST /api/payments/razorpay/create-order` — create Razorpay one-off orders (templates, credits).
+- `POST /api/payments/razorpay/verify` — client-callable endpoint after checkout that verifies the payment and delivers templates.
+- `POST /api/payments/razorpay/webhook` — webhook endpoint to handle asynchronous events (payment captured, subscription events).
+- `GET /api/user/subscription-status` — check whether the current user has an active subscription or recent completed payment (used for gating UI features).
+
+For production, configure `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` and ensure webhooks are reachable (use a tunnel for local testing).
+
 
 ## Contributing
 1. Create a feature branch

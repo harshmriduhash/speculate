@@ -29,10 +29,32 @@ export async function POST(request: Request) {
         const p = await prisma.payment.findFirst({ where: { stripeSessionId: orderId } });
         if (p) {
           await prisma.payment.update({ where: { id: p.id }, data: { status: "COMPLETED", creditAmount: Math.floor(paymentEntity.amount / 100) } });
+        }
+      }
+    }
 
-          // Check receipt if order had template info (we can't read order here easily), try to find order details via Razorpay SDK? For MVP, we encoded template id in receipt when creating order; but order details are not in webhook payload's payment entity. Many Razorpay webhooks include entity.order_id, and order details are not included. As a fallback, try to find a matching payment by order id and then use our DB record's stripeSessionId as order id: we already have it.
+    // Handle subscription events
+    if (event && event.startsWith('subscription.')) {
+      const subEntity = payload.payload?.subscription?.entity;
+      if (subEntity) {
+        const razorpayId = subEntity.id;
+        const status = subEntity.status;
+        // Update our subscription record if it exists
+        const dbSub = await prisma.subscription.findFirst({ where: { stripeSubscriptionId: razorpayId } });
+        if (dbSub) {
+          await prisma.subscription.update({ where: { id: dbSub.id }, data: { status: status } });
+        }
+      }
+    }
 
-          // If the original order receipt contained template:xxx, we need to fetch order details via Razorpay SDK, but to keep webhook lightweight, we'll accept that purchased templates are handled by another process or admin for now.
+    // Handle payment failed for subscription charges
+    if (event === 'payment.failed' || event === 'invoice.payment_failed') {
+      const paymentEntity = payload.payload?.payment?.entity;
+      const orderId = paymentEntity?.order_id;
+      if (orderId) {
+        const p = await prisma.payment.findFirst({ where: { stripeSessionId: orderId } });
+        if (p) {
+          await prisma.payment.update({ where: { id: p.id }, data: { status: 'FAILED' } });
         }
       }
     }
