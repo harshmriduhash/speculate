@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     // Mark our payment DB record as completed
     const dbPayment = await prisma.payment.findFirst({ where: { OR: [{ razorpayOrderId: razorpay_order_id }, { stripeSessionId: razorpay_order_id }] } });
     if (dbPayment) {
-      await prisma.payment.update({ where: { id: dbPayment.id }, data: { status: 'COMPLETED', creditAmount: Math.floor(payment.amount / 100), razorpayOrderId: razorpay_order_id } });
+      await prisma.payment.update({ where: { id: dbPayment.id }, data: { status: 'COMPLETED', creditAmount: Math.floor(Number(payment.amount) / 100), razorpayOrderId: razorpay_order_id } });
     }
 
     // If order.receipt encodes template, e.g., 'template:customer-survey', create the template in user's project
