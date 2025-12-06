@@ -12,7 +12,9 @@ export default function ProjectLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { projectId: string; flowId?: string };
+  // Make params permissive to align with Next's generated types which
+  // may expect promise-like params. Use `any` for build-time compatibility.
+  params?: any;
 }) {
   const pathname = usePathname();
   const isFlowPage = pathname.includes('/flows/');

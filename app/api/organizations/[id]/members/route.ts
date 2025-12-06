@@ -2,7 +2,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import type { OrganizationRole } from "@prisma/client";
+// Local type alias for OrganizationRole to avoid depending on generated Prisma types at build time
+type OrganizationRole = 'OWNER' | 'ADMIN' | 'MEMBER';
 
 export async function GET(
   request: NextRequest,

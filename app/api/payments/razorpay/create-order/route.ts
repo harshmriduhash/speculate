@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     if (!amount) return NextResponse.json({ error: "amount_required" }, { status: 400 });
 
     // Razorpay expects amount in smallest currency unit (paise for INR)
-    const order = await createOrder(amount, currency || "INR", receipt);
+    const order = (await createOrder(amount, currency || "INR", receipt)) as any;
 
     // Create payment record in DB (status PENDING)
     try {

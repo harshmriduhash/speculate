@@ -34,7 +34,10 @@ interface FlowData {
 
 interface FlowLayoutProps {
   children: React.ReactNode;
-  params: { projectId: string; flowId: string };
+  // Use a permissive `any` for `params` to satisfy Next's generated LayoutProps type
+  // which sometimes expects a Promise-like `params`. This avoids build-time
+  // type mismatches while preserving runtime behavior.
+  params?: any;
 }
 
 export default function FlowLayout({

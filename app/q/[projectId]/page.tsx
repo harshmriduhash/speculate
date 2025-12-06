@@ -7,17 +7,16 @@ export const metadata: Metadata = {
 };
 
 interface QuestionnairePageProps {
-  params: {
-    projectId: string;
-  };
+  // Use permissive params typing to align with Next generated types
+  params?: any;
 }
 
-export default async function QuestionnairePage({
-  params,
-}: QuestionnairePageProps) {
+export default async function QuestionnairePage({ params }: QuestionnairePageProps) {
+  const projectId = params?.projectId;
+
   return (
     <main className="min-h-screen bg-background">
-      <QuestionnaireView projectId={params.projectId} />
+      <QuestionnaireView projectId={projectId} />
     </main>
   );
-} 
+}

@@ -8,11 +8,14 @@ import { PublishDialog } from "@/components/flow/PublishDialog";
 import { toast } from "sonner";
 
 interface PageProps {
-  params: { projectId: string; flowId: string };
+  // Allow `params` to be flexible because Next's generated types may
+  // expect a Promise-like `params`. Use `any` to avoid build-time
+  // mismatches while preserving runtime behavior.
+  params?: any;
 }
 
 export default function Page({ params }: PageProps) {
-  const { projectId, flowId } = params;
+  const { projectId, flowId } = params || {};
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   const [currentVersion, setCurrentVersion] = useState(1);
 

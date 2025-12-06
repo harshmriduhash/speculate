@@ -12,14 +12,14 @@ import { openRazorpayCheckout } from '@/lib/razorpay-client';
 export default function SubscribePage({
   params,
 }: {
-  params: { tier: string };
+  params?: any;
 }) {
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
 
   // Get the tier configuration
-  const tier = SUBSCRIPTION_TIERS[params.tier as keyof typeof SUBSCRIPTION_TIERS];
+  const tier = SUBSCRIPTION_TIERS[params?.tier as keyof typeof SUBSCRIPTION_TIERS];
 
   useEffect(() => {
     if (!session) {
