@@ -218,6 +218,10 @@ model ChartInstance {
   color          String    @default("#80B500")
   onePageMode    Boolean   @default(false)
   isPublished    Boolean   @default(false)
+  // Marketplace fields for seller-uploaded templates
+  marketplacePrice Int?
+  marketplacePublished Boolean @default(false)
+  marketplaceSellerId String?
   version        Int       @default(1)
   variables      Json[]    @default([])
   createdAt      DateTime  @default(now())
@@ -327,6 +331,7 @@ model Payment {
   status        PaymentStatus @default(PENDING)
   createdAt     DateTime      @default(now())
   stripeSessionId String?     @unique
+  razorpayOrderId String?     @unique
   creditAmount  Int?
   
   userId        String
@@ -384,8 +389,10 @@ model QuestionnaireAnalytics {
 
 model Subscription {
   id                  String   @id @default(cuid())
-  stripeSubscriptionId String  @unique
-  stripePriceId       String
+  stripeSubscriptionId String?  @unique
+  stripePriceId       String?
+  razorpaySubscriptionId String? @unique
+  razorpayPlanId String?
   status              String   // active, past_due, canceled, etc.
   currentPeriodStart  DateTime
   currentPeriodEnd    DateTime
@@ -422,6 +429,7 @@ model Organization {
   type            OrganizationType  @default(BUSINESS)
   credits         Int               @default(0)
   stripeCustomerId String?         @unique
+  razorpayCustomerId String?       @unique
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   members         OrganizationMember[]

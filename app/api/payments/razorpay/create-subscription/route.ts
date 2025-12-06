@@ -26,9 +26,9 @@ export async function POST(req: Request) {
     // Create plan (Razorpay concept: plan -> subscription). For idempotency, search by plan name in DB
     let planId: string | null = null;
     // Check if plan already exists in DB
-    const existing = await prisma.subscription.findFirst({ where: { stripePriceId: details.name } });
-    if (existing && existing.stripeSubscriptionId) {
-      planId = existing.stripePriceId;
+    const existing = await prisma.subscription.findFirst({ where: { OR: [{ stripePriceId: details.name }, { razorpayPlanId: details.name }] } });
+    if (existing && (existing.stripeSubscriptionId || existing.razorpaySubscriptionId)) {
+      planId = existing.stripePriceId || existing.razorpayPlanId || null;
     }
 
     // Create a subscription for the customer
@@ -52,8 +52,10 @@ export async function POST(req: Request) {
 
     // Save subscription in DB
     await prisma.subscription.create({ data: {
-      stripeSubscriptionId: subscription.id,
-      stripePriceId: details.name,
+      stripeSubscriptionId: undefined,
+      stripePriceId: undefined,
+      razorpaySubscriptionId: subscription.id,
+      razorpayPlanId: details.name,
       status: subscription.status || 'created',
       currentPeriodStart: new Date(),
       currentPeriodEnd: new Date(Date.now() + 30*24*3600*1000),

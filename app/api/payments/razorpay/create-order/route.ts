@@ -25,6 +25,7 @@ export async function POST(req: Request) {
           currency: currency || "INR",
           status: "PENDING",
           stripeSessionId: order.id,
+          razorpayOrderId: order.id,
           creditAmount: 0,
           userId: userId || undefined,
         },

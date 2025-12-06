@@ -26,9 +26,9 @@ export async function POST(request: Request) {
 
       if (orderId) {
         // Mark our payment record as COMPLETED
-        const p = await prisma.payment.findFirst({ where: { stripeSessionId: orderId } });
+        const p = await prisma.payment.findFirst({ where: { OR: [{ stripeSessionId: orderId }, { razorpayOrderId: orderId }] } });
         if (p) {
-          await prisma.payment.update({ where: { id: p.id }, data: { status: "COMPLETED", creditAmount: Math.floor(paymentEntity.amount / 100) } });
+          await prisma.payment.update({ where: { id: p.id }, data: { status: "COMPLETED", creditAmount: Math.floor(paymentEntity.amount / 100), razorpayOrderId: orderId } });
         }
       }
     }
