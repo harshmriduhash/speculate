@@ -113,6 +113,32 @@ npm run test
 npm run build
 ```
 
+## Quick Local Demo (seeded)
+
+If you want to run a quick local demo without creating content manually, do the following after filling `.env.local` (you still need a Postgres DB for Prisma):
+
+```bash
+# Install dependencies
+npm install
+
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations (if desired)
+npx prisma migrate dev --name init
+
+# Seed demo data (creates a demo user, project and a sample flow)
+node --loader ts-node/esm prisma/seed.ts
+
+# Run the dev server
+npm run dev
+```
+
+Notes:
+- If you are in India and want to accept payments, this project supports Razorpay. Set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` in your `.env.local`. The app includes a minimal server endpoint at `/api/payments/razorpay/create-order` that generates Razorpay orders.
+- For demo purposes set `NEXT_PUBLIC_DEV_MODE=true` and `NEXT_PUBLIC_DISABLE_PAYWALLS=true` to bypass paywalls and credit checks.
+
+
 ## Contributing
 1. Create a feature branch
 2. Make your changes
